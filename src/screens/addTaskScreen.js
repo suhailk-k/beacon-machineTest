@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Realm from 'realm';
-import PushNotification from 'react-native-push-notification';
+import PushNotification, {Importance} from 'react-native-push-notification';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import {useNavigation} from '@react-navigation/native';
@@ -23,6 +23,10 @@ const AddTaskScreen = () => {
     PushNotification.createChannel({
       channelId: 'test-channel',
       channelName: 'Test Channel',
+      playSound: true,
+      soundName: 'default',
+      importance: Importance.HIGH,
+      vibrate: true,
     });
   };
   useEffect(() => {
@@ -30,24 +34,13 @@ const AddTaskScreen = () => {
   }, []);
 
   const handleNotification = () => {
-    // PushNotification.cancelAllLocalNotifications();
-
-    PushNotification.localNotification({
+    PushNotification.localNotificationSchedule({
       channelId: 'test-channel',
-      title: 'Your reminter set successfully',
-      message: '',
-      bigText: '',
-      color: 'red',
-      id: 10,
+      title: 'Remainder',
+      message: taskName,
+      date: moment(date, moment.defaultFormat).toDate(),
+      allowWhileIdle: true,
     });
-
-    // PushNotification.localNotificationSchedule({
-    //   channelId: 'test-channel',
-    //   title: 'Alarm',
-    //   message: 'You clicked on ' + ' 20 seconds ago',
-    //   date: new Date(),
-    //   allowWhileIdle: true,
-    // });
   };
 
   const handleSubmit = () => {
@@ -71,7 +64,7 @@ const AddTaskScreen = () => {
         realm.create('Task', {
           _id: Date.now(),
           name: taskName,
-          time: moment(date).format('hh:mm a').toString(),
+          time: moment(date).format('hh:mm a , MMM D YYYY ').toString(),
         });
       });
 
@@ -99,7 +92,8 @@ const AddTaskScreen = () => {
           placeholder="Task Name"
           onChangeText={e => setTaskName(e)}
           style={{
-            marginVertical: 20,
+            marginTop: 10,
+            marginBottom: 20,
             color: '#000',
             paddingHorizontal: 20,
             backgroundColor: '#E9F8EE',
@@ -112,20 +106,20 @@ const AddTaskScreen = () => {
         <TouchableOpacity
           onPress={() => setOpen(true)}
           style={{
-            marginVertical: 20,
+            marginTop: 10,
+            marginBottom: 40,
             paddingHorizontal: 20,
             backgroundColor: '#E9F8EE',
             borderRadius: 15,
             height: 50,
             justifyContent: 'center',
           }}>
-          <Text>{moment(date).format('hh:mm a')}</Text>
+          <Text>{moment(date).format('hh:mm a , MMM D YYYY ').toString()}</Text>
         </TouchableOpacity>
         <DatePicker
           modal
           open={open}
           date={date}
-          mode={'time'}
           onConfirm={date => {
             setOpen(false);
             setDate(date);
